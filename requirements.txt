@@ -1,1 +1,26 @@
-# Python dependencies
+# Week 1: Training and Data Handling
+torch==2.1.0+cpu               # Core PyTorch CPU-only deep learning framework
+torchaudio==2.1.0              # Audio processing and transforms for PyTorch
+datasets==2.14.6               # HuggingFace datasets for easy audio data loading
+librosa==0.10.1                # Audio analysis and Mel spectrogram extraction
+soundfile==0.12.1              # Audio file I/O support
+scikit-learn==1.3.0            # Data splitting, metrics, and utilities
+tqdm==4.66.1                   # Progress bars for training loops
+onnx==1.15.0                   # Export PyTorch model to ONNX format
+tensorboard==2.14.0            # Visualization of training metrics (optional light)
+matplotlib==3.7.2              # Plotting library for results visualization
+
+# Week 2: Real-time Audio Capture and UI
+pyaudio==0.2.12                # Real-time microphone audio capture
+onnxruntime==1.16.3            # Fast ONNX model inference on CPU
+streamlit==1.28.0              # Web app framework for UI
+numpy==1.24.2                  # Core numerical operations for audio/audio buffer handling
+
+# Week 3: Spotify Integration and Deployment
+spotipy==2.22.0                # Spotify Web API client for playlist search/playback
+requests==2.31.0               # HTTP requests needed by spotipy
+docker==6.1.2                  # Docker SDK for container deployment automation
+
+# Optional but recommended tools for training & utilities
+wandb==0.15.0                  # Experiment tracking (optional)
+plotly==5.17.0                 # Interactive visualization (optional)
