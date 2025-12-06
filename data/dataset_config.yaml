@@ -1,0 +1,50 @@
+# Dataset configuration for training
+# Optimized for 16GB RAM with 5K samples
+
+dataset:
+  name: "superb/wav2vec2-base-superb-er"
+  split: "train"
+  max_samples: 5000  # Optimal for 16GB RAM
+  streaming: false   # Set to true for very large datasets
+  
+audio:
+  sample_rate: 16000
+  duration: 3.0      # seconds
+  target_length: 48000  # samples (3s * 16kHz)
+  
+preprocessing:
+  normalize: true
+  padding: "zero"    # zero-pad shorter clips
+  trimming: true     # truncate longer clips
+  
+training:
+  train_split: 0.8   # 4000 samples
+  val_split: 0.2     # 1000 samples
+  stratified: true   # maintain class balance
+  batch_size: 16     # optimized for 16GB RAM
+  
+emotions:
+  num_classes: 8
+  labels:
+    - neutral
+    - calm
+    - happy
+    - sad
+    - angry
+    - fearful
+    - disgust
+    - surprised
+    
+memory:
+  target_ram_usage: "4GB"  # peak during training
+  free_ram_headroom: "12GB"
+  streaming_ram: "500MB"   # if streaming enabled
+  
+alternatives:
+  - name: "Dpngtm/wav2vec2-emotion-recognition"
+    type: "pre-trained"
+    emotions: 8
+  - name: "Rafael505c/emotion_speech"
+    type: "custom"
+  - name: "Matthijs/cmu-arctic-xvectors"
+    type: "clean_speech"
