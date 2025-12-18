@@ -16,6 +16,11 @@ sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__f
 from src.cnn_model import HybridEmotionCNN
 from src.utils import load_audio, normalize_audio
 from constants.emotions import EMOTION_LABELS, EMOTION_TO_MUSIC_MOOD
+from types.api_contracts import (
+    EmotionPredictionResponse,
+    RealtimePredictionResponse,
+    APIHealthResponse
+)
 
 app = FastAPI(
     title="AI Music Mood Detection API",
@@ -49,17 +54,17 @@ async def load_model():
         print(f"⚠ Error loading model: {e}")
         print("Starting without model - train the model first!")
 
-@app.get("/")
+@app.get("/", response_model=APIHealthResponse)
 async def root():
     """API health check"""
-    return {
-        "status": "running",
-        "service": "AI Music Mood Detection API",
-        "model_loaded": model is not None,
-        "device": DEVICE
-    }
+    return APIHealthResponse(
+        status="running",
+        service="AI Music Mood Detection API",
+        model_loaded=model is not None,
+        device=DEVICE
+    )
 
-@app.post("/predict-emotion/")
+@app.post("/predict-emotion/", response_model=EmotionPredictionResponse)
 async def predict_emotion(file: UploadFile = File(...)):
     """
     Predict emotion from uploaded audio file
@@ -109,28 +114,20 @@ async def predict_emotion(file: UploadFile = File(...)):
         # Clean up temp file
         os.unlink(tmp_path)
         
-        # Apply confidence threshold (>70% as per Week 2 plan)
-        if confidence_score < 0.70:
-            return JSONResponse(content={
-                "emotion": emotion,
-                "confidence": round(confidence_score, 4),
-                "music_mood": EMOTION_TO_MUSIC_MOOD[emotion],
-                "all_probabilities": all_probabilities,
-                "warning": "Low confidence - emotion prediction may be uncertain"
-            })
-        
-        return JSONResponse(content={
-            "emotion": emotion,
-            "confidence": round(confidence_score, 4),
-            "music_mood": EMOTION_TO_MUSIC_MOOD[emotion],
-            "all_probabilities": all_probabilities,
-            "status": "success"
-        })
+        # Return validated response with Pydantic model
+        return EmotionPredictionResponse(
+            emotion=emotion,
+            confidence=confidence_score,
+            music_mood=EMOTION_TO_MUSIC_MOOD[emotion],
+            all_probabilities=all_probabilities,
+            status="low_confidence" if confidence_score < 0.70 else "success",
+            warning="Low confidence - emotion prediction may be uncertain" if confidence_score < 0.70 else None
+        )
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing audio: {str(e)}")
 
-@app.post("/predict-realtime/")
+@app.post("/predict-realtime/", response_model=RealtimePredictionResponse)
 async def predict_realtime(audio_buffer: UploadFile = File(...)):
     """
     Real-time emotion prediction from audio buffer (Week 2)
@@ -165,11 +162,11 @@ async def predict_realtime(audio_buffer: UploadFile = File(...)):
         
         os.unlink(tmp_path)
         
-        return {
-            "emotion": emotion,
-            "confidence": round(confidence.item(), 4),
-            "music_mood": EMOTION_TO_MUSIC_MOOD[emotion]
-        }
+        return RealtimePredictionResponse(
+            emotion=emotion,
+            confidence=confidence.item(),
+            music_mood=EMOTION_TO_MUSIC_MOOD[emotion]
+        )
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

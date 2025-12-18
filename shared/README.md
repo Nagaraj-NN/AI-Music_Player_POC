@@ -10,7 +10,7 @@ shared/
 │   ├── emotions.py    # Python version (ML backend)
 │   └── emotions.ts    # TypeScript version (mobile app)
 ├── types/             # Type definitions
-│   ├── models.py      # Python Pydantic models
+│   ├── api_contracts.py      # Python Pydantic models
 │   └── api-contracts.ts  # TypeScript interfaces
 └── utils/             # Shared utilities (future)
 ```
@@ -25,7 +25,7 @@ shared/
 
 **Important**: These files MUST be kept in sync manually. Any change to emotion mappings must be reflected in both files.
 
-### `types/models.py` & `api-contracts.ts`
+### `types/api_contracts.py` & `api-contracts.ts`
 - API request/response type definitions
 - Ensures type safety between Python backend and TypeScript frontend
 - Python uses Pydantic for validation, TypeScript for compile-time safety
@@ -39,7 +39,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'shared'))
 
 from constants.emotions import EMOTION_LABELS, EMOTION_TO_MUSIC_MOOD
-from types.models import EmotionPredictionResponse
+from types.api_contracts import EmotionPredictionResponse
 ```
 
 ### TypeScript (Mobile App)
