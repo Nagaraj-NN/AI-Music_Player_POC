@@ -153,14 +153,4 @@ class HybridEmotionCNN(nn.Module):
         
         return x
 
-# Emotion labels (8-class system based on RAVDESS/TESS)
-EMOTION_LABELS = {
-    0: "neutral",
-    1: "calm",
-    2: "happy",
-    3: "sad",
-    4: "angry",
-    5: "fearful",
-    6: "disgust",
-    7: "surprised"
-}
+# Note: EMOTION_LABELS moved to shared/constants/emotions.py for consistency across backend and mobile app

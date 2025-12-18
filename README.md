@@ -1,52 +1,59 @@
-# AI Music Mood Detection POC
+# AI Music Mood Detection - Monorepo
 
-An AI-powered music recommendation app that detects emotions from voice frequency using a lightweight Hybrid CNN and suggests music based on detected mood.
+A cross-platform music recommendation app that detects emotions from voice using AI and suggests music via Spotify API.
 
 ## 🎯 Project Overview
 
-This project uses a **Hybrid CNN** (1D-CNN + 2D-CNN) to detect emotions from voice audio and maps them to appropriate music moods for personalized music recommendations via Spotify.
+This monorepo contains:
+- **ML Backend**: Hybrid CNN (Wav2Vec2 + custom CNNs) for emotion detection from audio
+- **Mobile App**: React Native app for iOS, Android, and Web (coming soon)
+- **Shared Libraries**: Type-safe constants and API contracts shared between backend and frontend
 
 ### Key Features
 - **Emotion Detection**: 8-class emotion recognition (neutral, calm, happy, sad, angry, fearful, disgust, surprised)
-- **Hybrid CNN Architecture**: Combines raw waveform (1D-CNN) and Mel spectrogram (2D-CNN) features
-- **Lightweight**: Optimized for 16GB RAM laptops
-- **Real-time**: <100ms inference latency for 3-second audio clips
-- **API-First**: FastAPI service for easy integration with apps
-- **HuggingFace Integration**: Zero data prep using pre-existing emotion datasets
+- **Lightweight ML**: Optimized for 16GB RAM laptops with <100ms inference
+- **Cross-Platform**: Single codebase for mobile (React Native) and web
+- **Type-Safe Integration**: Shared TypeScript/Python types ensure consistency
+- **Spotify Integration**: Maps emotions to music moods for personalized recommendations
 
-## 📁 Project Structure
+## 📁 Monorepo Structure
 
 ```
 AI-Music_Player_POC/
-├── src/                          # Core CNN logic (separate from training)
-│   ├── __init__.py              # Package initialization
-│   ├── cnn_model.py             # Hybrid CNN (Wav2Vec2 + 1D/2D CNN)
-│   ├── data_loader.py           # HuggingFace dataset loader (zero prep)
-│   ├── utils.py                 # Audio processing utilities
-│   └── inference.py             # Standalone inference module
+├── ml-backend/                   # Python ML backend (FastAPI)
+│   ├── src/                     # Core CNN logic
+│   │   ├── cnn_model.py         # Hybrid CNN (Wav2Vec2 + 1D/2D CNN)
+│   │   ├── data_loader.py       # HuggingFace dataset loader
+│   │   ├── utils.py             # Audio processing utilities
+│   │   └── inference.py         # Standalone inference
+│   ├── training/                # Model training scripts
+│   │   └── train.py             # Training pipeline with Wav2Vec2
+│   ├── api/                     # FastAPI endpoints
+│   │   └── app.py               # Emotion prediction API
+│   ├── models/                  # Saved model weights
+│   ├── data/                    # Datasets and configs
+│   ├── requirements.txt         # Python dependencies
+│   └── INSTALL.md              # ML backend setup guide
 │
-├── training/                     # Training scripts (isolated from core logic)
-│   ├── __init__.py              # Package initialization
-│   └── train.py                 # Model training pipeline with Wav2Vec2
+├── mobile-app/                   # React Native app (iOS/Android/Web)
+│   └── .gitkeep                 # Placeholder (app coming soon)
 │
-├── api/                          # API service layer (exposes model to app)
-│   ├── __init__.py              # Package initialization
-│   └── app.py                   # FastAPI endpoints for emotion prediction
+├── shared/                       # Shared code between backend and frontend
+│   ├── constants/               # Shared constants
+│   │   ├── emotions.py          # Python version (ML backend)
+│   │   └── emotions.ts          # TypeScript version (mobile app)
+│   ├── types/                   # Type definitions
+│   │   ├── models.py            # Python Pydantic models
+│   │   └── api-contracts.ts     # TypeScript interfaces
+│   └── README.md                # Shared libraries documentation
 │
-├── models/                       # Saved model weights (generated after training)
-│   ├── best_emotion_cnn.pth     # Trained CNN weights (only custom layers)
-│   └── emotion_cnn.onnx         # ONNX production model
+├── docs/                         # Project documentation
+│   └── 3-Week Plan...           # Development roadmap
 │
-├── data/                         # Sample audio data and datasets
-│   ├── README.md                # Dataset documentation and loading guide
-│   ├── dataset_config.yaml      # Dataset configuration (5K samples)
-│   └── cache/                   # HuggingFace dataset cache (auto-generated)
-│
-├── requirements.txt              # Python dependencies (optimized for 16GB RAM)
-└── README.md                    # This file
+└── README.md                     # This file
 ```
 
-## 🏗️ Architecture
+## 🏗️ ML Architecture
 
 ### Hybrid CNN with Pre-trained Wav2Vec2
 The model leverages **pre-trained Wav2Vec2** as a frozen feature extractor and adds custom CNN classifiers:
@@ -111,11 +118,10 @@ Raw Audio (16kHz, 3s)
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Python 3.8+
-- 16GB RAM (minimum)
-- CUDA-capable GPU (optional, for faster training)
+- **ML Backend**: Python 3.8+, 16GB RAM, CUDA GPU (optional)
+- **Mobile App**: Node.js 18+, React Native CLI (coming soon)
 
-### Installation
+### ML Backend Setup
 
 1. Clone the repository:
 ```bash
@@ -123,36 +129,35 @@ git clone https://github.com/Nagaraj-NN/AI-Music_Player_POC.git
 cd AI-Music_Player_POC
 ```
 
-2. Install dependencies:
+2. Install Python dependencies:
 ```bash
+cd ml-backend
 pip install -r requirements.txt
 ```
 
-### Training the Model
-
-Train the Hybrid CNN on HuggingFace emotion datasets:
-
+3. Train the model:
 ```bash
 python training/train.py
 ```
 
 **Training outputs:**
-- `models/best_emotion_cnn.pth` - Best model weights
+- `models/best_emotion_cnn.pth` - Best model weights (~200KB)
 - `models/emotion_cnn.onnx` - ONNX export for production
 
-**Expected accuracy:** 85-92% on validation set (with full dataset)
+**Expected accuracy:** 85-92% on validation set
 
-### Running Inference
+### Running the ML API
 
 #### Option 1: Standalone Inference
 ```bash
+cd ml-backend
 python src/inference.py path/to/audio.wav
 ```
 
 #### Option 2: API Service
 Start the FastAPI server:
 ```bash
-cd api
+cd ml-backend/api
 python app.py
 ```
 
@@ -164,6 +169,17 @@ API will be available at `http://localhost:8000`
 - `POST /predict-realtime/` - Real-time prediction from audio buffer
 - `GET /emotions/` - List supported emotions
 - `GET /music-moods/` - Get emotion-to-mood mapping
+
+### Mobile App Setup (Coming Soon)
+
+```bash
+cd mobile-app
+npm install
+npm run start     # Start Metro bundler
+npm run android   # Run on Android
+npm run ios       # Run on iOS
+npm run web       # Run web version
+```
 
 ### Example API Usage
 

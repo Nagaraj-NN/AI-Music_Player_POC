@@ -9,11 +9,13 @@ import tempfile
 import os
 import sys
 
-# Add parent directory to path
+# Add parent directory and shared folder to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '..', 'shared'))
 
-from src.cnn_model import HybridEmotionCNN, EMOTION_LABELS
+from src.cnn_model import HybridEmotionCNN
 from src.utils import load_audio, normalize_audio
+from constants.emotions import EMOTION_LABELS, EMOTION_TO_MUSIC_MOOD
 
 app = FastAPI(
     title="AI Music Mood Detection API",
@@ -24,18 +26,6 @@ app = FastAPI(
 # Global model variable
 model = None
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-
-# Emotion to music mood mapping (for Spotify integration - Week 3)
-EMOTION_TO_MUSIC_MOOD = {
-    "neutral": "chill",
-    "calm": "relaxing",
-    "happy": "upbeat",
-    "sad": "uplifting",
-    "angry": "energetic",
-    "fearful": "calming",
-    "disgust": "neutral",
-    "surprised": "exciting"
-}
 
 @app.on_event("startup")
 async def load_model():

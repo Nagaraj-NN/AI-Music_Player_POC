@@ -13,11 +13,13 @@ import numpy as np
 import sys
 import os
 
-# Add parent directory to path for imports
+# Add parent directory and shared folder to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '..', 'shared'))
 
-from src.cnn_model import HybridEmotionCNN, EMOTION_LABELS
+from src.cnn_model import HybridEmotionCNN
 from src.utils import normalize_audio, apply_augmentation
+from constants.emotions import EMOTION_LABELS
 
 class EmotionDataset(Dataset):
     """Custom Dataset for emotion audio from HuggingFace"""
